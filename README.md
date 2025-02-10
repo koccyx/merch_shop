@@ -1,0 +1,1 @@
+# avito_assignment_2025
