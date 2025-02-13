@@ -1,0 +1,15 @@
+env: "dev"
+db:
+  addres: "localhost"
+  port: "5432"
+  database: "avito_shop"
+  user: "postgres"
+  password: "postgres"
+  schema: "public"
+http_server: 
+  addres: "localhost:8080"
+  port: "8080"
+  timeout: 5s
+  idle_timeout: 60s
+auth:
+  secret: "avito_assignment"

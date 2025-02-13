@@ -1,1 +1,1 @@
-# avito_assignment_2025
+# Avito tech backend trainee assignment winter 2025 
