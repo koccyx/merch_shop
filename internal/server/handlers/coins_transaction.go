@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/koccyx/avito_assignment/internal/http/models"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 	jsonwriter "github.com/koccyx/avito_assignment/internal/lib/json_writer"
 	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/service"

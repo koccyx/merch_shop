@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/koccyx/avito_assignment/internal/http/models"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 )
 
 func ValidateUsername(username string) error {

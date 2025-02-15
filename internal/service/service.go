@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/koccyx/avito_assignment/internal/entities"
-	"github.com/koccyx/avito_assignment/internal/http/models"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 	"github.com/koccyx/avito_assignment/internal/storage"
 )
 

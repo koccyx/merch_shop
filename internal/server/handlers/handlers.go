@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/koccyx/avito_assignment/internal/http/models"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 )
 
 var (

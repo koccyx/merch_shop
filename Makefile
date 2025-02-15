@@ -5,3 +5,6 @@ run:
 
 migrate:
 	CONFIG_PATH=./config/local.yaml MIGRATIONS_PATH=file://./migrations/ go run ./cmd/migrator/main.go
+
+tests:
+	CONFIG_PATH=../../config/local.yaml go test ./... -v --cover      

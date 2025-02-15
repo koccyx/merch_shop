@@ -1,31 +1,35 @@
-package main
+package integration
 
 import (
 	"context"
+	"io"
 	"log"
 	"log/slog"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"testing"
 	"time"
 
 	"github.com/koccyx/avito_assignment/internal/config"
 	"github.com/koccyx/avito_assignment/internal/server"
 )
 
-const(
-	envLocal = "local"
-    envDev = "dev"
-)
+var apiURL string
+var cfg *config.Config
 
-func main() {
-	cfg, err := config.Load()
+func TestMain(m *testing.M) {
+	var err error
 
+	cfg, err = config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log := setupLogger(cfg.Env)
+	apiURL = "http://" + net.JoinHostPort(cfg.Server.Addres, cfg.Server.Port)
+
+	log := setupLogger()
 
 	log.Info("main started")
 	log.Debug("debug messages enabled")
@@ -37,30 +41,22 @@ func main() {
 	
 	serv.SetupServer()
 	
-	<-done
+	exitCode := m.Run()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	serv.GracefulShutdown(ctx)
-	
-	log.Info("server stopped")
+
+    println("Tearing down...")
+
+    os.Exit(exitCode)
 }
 
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	}
-
+func setupLogger() *slog.Logger {
+	log := slog.New(
+		slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelDebug}),
+	)
+	
 	return log
 }

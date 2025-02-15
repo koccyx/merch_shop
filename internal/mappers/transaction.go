@@ -2,7 +2,7 @@ package mappers
 
 import (
 	"github.com/koccyx/avito_assignment/internal/entities"
-	"github.com/koccyx/avito_assignment/internal/http/models"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 )
 
 func MapTransactionEntityToCoinsHistory(recived, sent []entities.CoinTransactionInfo) models.CoinHistory {
