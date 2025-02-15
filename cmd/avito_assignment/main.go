@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -66,7 +67,7 @@ func main() {
 	})
 
 	serv := &http.Server{
-		Addr: cfg.Server.Addres,
+		Addr: fmt.Sprintf("%s:%s", cfg.Server.Addres, cfg.Server.Port),
 		Handler: router,
 	}
 

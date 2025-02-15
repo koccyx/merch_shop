@@ -28,7 +28,7 @@ func New(cfg *config.Config) (*sql.DB, error){
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("%s: ping error: %w", op, err)
+		return nil, fmt.Errorf("%s: ping error: %w %s", op, err, cfg)
 	}
 
 	return db, nil

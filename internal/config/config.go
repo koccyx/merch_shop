@@ -25,7 +25,8 @@ type Storage struct {
 }
 
 type HTTPServer struct {
-	Addres string `yaml:"addres" env-default:"localhost:8081"`
+	Addres string `yaml:"addres" env-default:"localhost"`
+	Port string `yaml:"port" env-default:"8080"`
 	TimeOut time.Duration `yaml:"timeout" env-default:"5s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
