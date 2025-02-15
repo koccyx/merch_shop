@@ -19,7 +19,7 @@ type AuthService interface {
 	VerifyToken(ctx context.Context, token string) (string, error)
 }
 
-func Auth(auth AuthService, logger *slog.Logger) http.HandlerFunc {
+func Auth(authService AuthService, logger *slog.Logger) http.HandlerFunc {
 	const op = "http.handlers.Auth" 
 	log := logger.With(
 		slog.String("op", op),
@@ -42,7 +42,7 @@ func Auth(auth AuthService, logger *slog.Logger) http.HandlerFunc {
 			return
 		}
 
-		token, err := auth.Auth(r.Context(), authReq.Username, authReq.Password)
+		token, err := authService.Auth(r.Context(), authReq.Username, authReq.Password)
 		if err != nil {
 			if errors.Is(err, service.ErrInvalidPassword) || errors.Is(err, service.ErrInvalidToken) || errors.Is(err, service.ErrInvalidCredentials) {
 				log.Error("validation", sl.Err(err))

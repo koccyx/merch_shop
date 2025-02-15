@@ -14,23 +14,8 @@ var (
 	ErrEmptyFields = errors.New("empty fields")
 	ErrNotFound = errors.New("url not found")
 	ErrEntryExists = errors.New("entry exists")
+	ErrNotEnoughBalance = errors.New("not enough balance")
 )
-
-func prepareDb(db *sql.DB) error{
-
-    _, err := db.Exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id VARCHAR PRIMARY KEY,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-			balance INTEGER DEFAULT 1000
-        );`)
-    if err != nil {
-        return fmt.Errorf("error executing SQL query: %w", err)
-    }
-
-	return nil
-}
 
 func New(cfg *config.Config) (*sql.DB, error){	
 	const op = "storage.postgres.New"
@@ -44,12 +29,6 @@ func New(cfg *config.Config) (*sql.DB, error){
 
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("%s: ping error: %w", op, err)
-	}
-
-	err = prepareDb(db)
-
-	if err != nil {
-		return nil, fmt.Errorf("%s: error during db opening: %w", op, err)
 	}
 
 	return db, nil

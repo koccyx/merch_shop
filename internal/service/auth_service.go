@@ -8,18 +8,11 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/koccyx/avito_assignment/internal/entities"
 	"github.com/koccyx/avito_assignment/internal/lib/jwt"
 	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/validators"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type UserRepository interface {
-	Create(ctx context.Context, username, password string) (*entities.User, error)
-	GetOne(ctx context.Context, usrId uuid.UUID) (*entities.User, error)
-	GetByName(ctx context.Context, username string) (*entities.User, error)
-}
 
 type AuthServiceSt struct {
 	log *slog.Logger
@@ -43,6 +36,8 @@ func (s *AuthServiceSt) Auth(ctx context.Context, username, password string) (st
 			log.Error("error while getting user", sl.Err(err))
 			return "", fmt.Errorf("%s: %w", op, err)
 		}
+
+		log.Info("user not found, starting registration")
 
 		err = validators.ValidateUsername(username)
 		if err != nil {

@@ -60,3 +60,8 @@ func ReadReqJSON(w http.ResponseWriter, r *http.Request, data any) error {
 
 	return nil
 }
+
+func WriteSuccess(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}

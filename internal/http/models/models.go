@@ -15,13 +15,17 @@ type InventoryItem struct {
 
 // CoinHistory представляет историю получения и отправки монет.
 type CoinHistory struct {
-    Received []CoinTransaction `json:"received"`
-    Sent     []CoinTransaction `json:"sent"`
+    Received []CoinTransactionRecived `json:"received"`
+    Sent     []CoinTransactionSent `json:"sent"`
 }
 
 // CoinTransaction представляет одну транзакцию монет.
-type CoinTransaction struct {
+type CoinTransactionRecived struct {
     FromUser string `json:"fromUser"`
+    Amount   int    `json:"amount"`
+}
+
+type CoinTransactionSent struct {
     ToUser   string `json:"toUser"`
     Amount   int    `json:"amount"`
 }

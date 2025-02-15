@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE IF NOT EXISTS user_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id),
-    merch_id UUID REFERENCES items(id),
+    item_id UUID REFERENCES items(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

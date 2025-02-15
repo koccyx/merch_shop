@@ -60,7 +60,9 @@ func main() {
 
 	router.Group(func(r chi.Router) {
 		r.Use(auth.AuthMiddleware(service.Auth, cfg.Auth.Secret, log))
-		r.Get("/api/buy/{item}", handlers.Merch(service.Auth, log))
+		r.Post("/api/sendCoin", handlers.TransferCoins(service.User, log))
+		r.Get("/api/buy/{item}", handlers.PurchaseItem(service.Item, log))
+		r.Get("/api/info", handlers.Info(service.User, log))
 	})
 
 	serv := &http.Server{
@@ -86,11 +88,13 @@ func main() {
 
 	if err := serv.Shutdown(ctx); err != nil {
 		log.Error("failed to stop server", sl.Err(err))
-
 		return
 	}
 
-	db.Close()
+	if err := db.Close(); err != nil {
+		log.Error("failed to close db", sl.Err(err))
+		return
+	}
 
 	log.Info("server stopped")
 }

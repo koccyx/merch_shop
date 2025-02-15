@@ -16,32 +16,23 @@ type UserRepository struct {
 
 func (r *UserRepository) Create(ctx context.Context, username, password string) (*entities.User, error) {	
 	const op = "repo.postgres.user.Create"
-
-	newUser := &entities.User{
-		Id: uuid.New(),
-		Username: username,
-		Password: password,
-	}
-
+	
 	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 	
 	sql, args, err := builder.Insert("users").
-	Columns("id" , "username", "password").
-	Values(newUser.Id, newUser.Username, newUser.Password).
+	Columns("username", "password").
+	Values(username, password).
 	ToSql();
-
 	if err != nil {
 		return nil, fmt.Errorf("%s: building query error: %w", op, err)
 	}
 
 	_, err = r.db.ExecContext(ctx, sql, args...)
-
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := r.GetOne(ctx, newUser.Id)
-
+	res, err := r.GetByName(ctx, username)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -77,6 +68,41 @@ func (r *UserRepository) GetOne(ctx context.Context, usrId uuid.UUID) (*entities
     return &user, nil
 }
 
+func (r *UserRepository) GetUserItemsInfo(ctx context.Context, userId uuid.UUID) ([]entities.InventoryItem, error) {
+	const op = "repo.postgres.user.GetUserItems" 
+	
+    builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+    selectBuilder := builder.
+	Select("i.name AS name", "COUNT(ui.item_id) AS amount").
+	From("user_items ui").
+	Join("items i ON ui.item_id = i.id").
+	Where(squirrel.Eq{"ui.user_id": userId}).
+	GroupBy("i.name")
+
+    query, args, err := selectBuilder.ToSql()
+    if err != nil {
+        return nil, fmt.Errorf("%s: %w", op, err)
+    }
+
+    rows, err := r.db.Query(query, args...)
+    if err != nil {
+        return nil, fmt.Errorf("%s: %w", op, err)
+    }
+    defer rows.Close()
+
+    items := make([]entities.InventoryItem, 0) 
+
+    for rows.Next() {
+        var item entities.InventoryItem
+        if err := rows.Scan(&item.Name, &item.Amount); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+        }
+        items = append(items, item)
+    }
+
+    return items, nil
+}
+
 func (r *UserRepository) GetByName(ctx context.Context, username string) (*entities.User, error) {
 	const op = "repo.postgres.user.GetByName" 
 	
@@ -99,6 +125,42 @@ func (r *UserRepository) GetByName(ctx context.Context, username string) (*entit
     }
 
     return &user, nil
+}
+
+func (r *UserRepository) PutCoins(ctx context.Context, userId uuid.UUID, amount int) (int64, error) {
+	const op = "repo.postgres.user.PutCoins" 
+	
+    usr, err := r.GetOne(ctx, userId)
+	if err != nil {
+        return 0, fmt.Errorf("%s: %w", op, err)
+    }
+
+	if usr.Balance + amount < 0 {
+		return 0, fmt.Errorf("%s: %w", op, ErrNotEnoughBalance)
+	}
+	
+	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+    putBuilder := builder.
+		Update("users").
+		Set("balance", usr.Balance + amount).
+		Where(squirrel.Eq{"id": usr.Id})
+
+    query, args, err := putBuilder.ToSql()
+    if err != nil {
+        return 0, fmt.Errorf("%s: %w", op, err)
+    }
+
+	result, err := r.db.Exec(query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+    return rowsAffected, nil
 }
 
 func NewUserRepository(db *sql.DB) *UserRepository {

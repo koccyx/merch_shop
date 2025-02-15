@@ -47,7 +47,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = m.Down()
+	err = m.Up()
 	if err != nil && err != migrate.ErrNoChange {
 		fmt.Println(err)
 	} else {
