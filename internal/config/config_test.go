@@ -32,7 +32,7 @@ auth:
 
 	file, err := os.Create("test_config.yml")
 	require.NoError(t, err)
-	defer os.Remove("test_config.yml") 
+	defer os.Remove("test_config.yml")
 
 	_, err = file.WriteString(configContent)
 	require.NoError(t, err)
@@ -55,7 +55,6 @@ auth:
 	assert.Equal(t, 60*time.Second, cfg.Server.IdleTimeout)
 	assert.Equal(t, "supersecret", cfg.Auth.Secret)
 }
-
 
 func TestLoadConfig_MissingConfigPath(t *testing.T) {
 	err := os.Unsetenv("CONFIG_PATH")

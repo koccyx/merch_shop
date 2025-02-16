@@ -13,11 +13,11 @@ import (
 )
 
 type ItemServiceSt struct {
-	log *slog.Logger
-	userRepo UserRepository
-	itemRepo ItemRepository
+	log          *slog.Logger
+	userRepo     UserRepository
+	itemRepo     ItemRepository
 	userItemRepo UserItemRepository
-	db *sql.DB
+	db           *sql.DB
 }
 
 func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName string) error {
@@ -27,7 +27,7 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 		slog.String("op", op),
 		slog.String("userId", userId),
 	)
-	
+
 	log.Info("purchasing item")
 
 	prsdUsrId, err := uuid.Parse(userId)
@@ -63,13 +63,12 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 	}
 
 	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{
-        Isolation: sql.LevelReadCommitted,
-    })
+		Isolation: sql.LevelReadCommitted,
+	})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-
-	defer func ()  {
+	defer func() {
 		if err != nil {
 			tx.Rollback()
 		}
@@ -94,12 +93,12 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 	return nil
 }
 
-func NewItemService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, logger *slog.Logger, db *sql.DB) *ItemServiceSt{
+func NewItemService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, logger *slog.Logger, db *sql.DB) *ItemServiceSt {
 	return &ItemServiceSt{
-		userRepo: tdRepo,
-		itemRepo: itemRepo,
+		userRepo:     tdRepo,
+		itemRepo:     itemRepo,
 		userItemRepo: userItemRepo,
-		log: logger,
-		db: db,
+		log:          logger,
+		db:           db,
 	}
 }

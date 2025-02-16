@@ -38,7 +38,6 @@ func (m *MockItemRepository) GetByName(ctx context.Context, name string) (*entit
 	return args.Get(0).(*entities.Item), args.Error(1)
 }
 
-
 type MockTransactionRepository struct {
 	mock.Mock
 }
@@ -57,7 +56,6 @@ func (m *MockTransactionRepository) GetOne(ctx context.Context, transactionId uu
 	args := m.Called(ctx, transactionId)
 	return args.Get(0).(*entities.Transaction), args.Error(1)
 }
-
 
 type MockUserItemsRepository struct {
 	mock.Mock

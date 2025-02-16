@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
 func TestTransferCoins(t *testing.T) {
 	db, sqlMock, err := sqlmock.New()
 	if err != nil {
@@ -96,8 +97,8 @@ func TestInfo(t *testing.T) {
 	assert.Empty(t, info.Inventory)
 	assert.Equal(t, models.CoinHistory{
 		Received: []models.CoinTransactionRecived{},
-		Sent: []models.CoinTransactionSent{},
-	},info.CoinHistory)
+		Sent:     []models.CoinTransactionSent{},
+	}, info.CoinHistory)
 
 	mockUserRepo.AssertExpectations(t)
 	mockTransactionRepo.AssertExpectations(t)

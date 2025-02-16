@@ -13,7 +13,6 @@ import (
 	"github.com/koccyx/avito_assignment/internal/config"
 )
 
-
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -24,7 +23,6 @@ func main() {
 	if migrationsPath == "" {
 		panic("migrations path is required ")
 	}
-	
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Storage.User, cfg.Storage.Password, cfg.Storage.Addres, cfg.Storage.Port, cfg.Storage.Database, cfg.Storage.Schema)
 	db, err := sql.Open("pgx", connStr)
@@ -35,6 +33,7 @@ func main() {
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
+		db.Close()
 		log.Fatal(err)
 	}
 

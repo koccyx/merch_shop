@@ -7,41 +7,41 @@ import (
 )
 
 type UserClaims struct {
-    UserId string
-    jwt.RegisteredClaims
+	UserId string
+	jwt.RegisteredClaims
 }
 
-func NewToken(userId string, secret string) (string, error) {    
-    claims := UserClaims{
-        UserId: userId,
-    }
-    
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+func NewToken(userId string, secret string) (string, error) {
+	claims := UserClaims{
+		UserId: userId,
+	}
 
-    tokenString, err := token.SignedString([]byte(secret))
-    if err != nil {
-        return "", err
-    }
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-    return tokenString, nil
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
-func ParseToken(token string, secret string) (string, error) {    
-    prsdToken, err := jwt.ParseWithClaims(token, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		
+func ParseToken(token string, secret string) (string, error) {
+	prsdToken, err := jwt.ParseWithClaims(token, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("parsing token error")
 		}
 
 		return []byte(secret), nil
 	})
-    if err != nil {
-        return "", err 
-    }
+	if err != nil {
+		return "", err
+	}
 
-    if claims, ok := prsdToken.Claims.(*UserClaims); ok && prsdToken.Valid {
+	if claims, ok := prsdToken.Claims.(*UserClaims); ok && prsdToken.Valid {
 		return claims.UserId, nil
-	} 
+	}
 
-    return "", fmt.Errorf("parsing token error")
+	return "", fmt.Errorf("parsing token error")
 }

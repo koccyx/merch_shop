@@ -12,7 +12,7 @@ func MapTransactionEntityToCoinsHistory(recived, sent []entities.CoinTransaction
 	for _, tr := range recived {
 		trRecived = append(trRecived, models.CoinTransactionRecived{
 			FromUser: tr.FromUser,
-			Amount: tr.Amount,
+			Amount:   tr.Amount,
 		})
 	}
 
@@ -25,6 +25,6 @@ func MapTransactionEntityToCoinsHistory(recived, sent []entities.CoinTransaction
 
 	return models.CoinHistory{
 		Received: trRecived,
-		Sent: trSent,
+		Sent:     trSent,
 	}
 }

@@ -8,13 +8,13 @@ import (
 )
 
 var (
-	ErrInvalidRequestBody = errors.New("invalid request body")
-	ErrInvalidParam = errors.New("invalid request param")
+	ErrInvalidRequestBody  = errors.New("invalid request body")
+	ErrInvalidParam        = errors.New("invalid request param")
 	ErrInternalServerError = errors.New("internal server error")
-	ErrInternalUserId = errors.New("invalid user id")
-	ErrUserNotFound = errors.New("invalid request body")
-	ErrNotEnoughBalance = errors.New("not enough balance for opperation")
-	ErrSameUserTransfer = errors.New("cant transfer coins to same user")
+	ErrInternalUserId      = errors.New("invalid user id")
+	ErrUserNotFound        = errors.New("invalid request body")
+	ErrNotEnoughBalance    = errors.New("not enough balance for opperation")
+	ErrSameUserTransfer    = errors.New("cant transfer coins to same user")
 )
 
 type UserService interface {

@@ -5,9 +5,8 @@ import (
 )
 
 type User struct {
-	Id uuid.UUID `db:"id"`
-	Username string `db:"username"`
-	Password string `db:"password"`
-	Balance int `db:"balance"`
+	Id       uuid.UUID `db:"id"`
+	Username string    `db:"username"`
+	Password string    `db:"password"`
+	Balance  int       `db:"balance"`
 }
-

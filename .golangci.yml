@@ -1,0 +1,23 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters-settings:
+  gofmt:
+    simplify: true
+
+linters:
+  disable-all: true
+  enable:
+    - gocyclo
+    - errcheck
+    - unused
+    - sloglint
+    - goconst
+    - unconvert
+    - gocritic
+    - staticcheck
+    - gosec
+    - govet
+    - gofmt
+

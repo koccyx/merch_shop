@@ -15,7 +15,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 type MockUserRepository struct {
 	mock.Mock
 }
@@ -115,4 +114,3 @@ func TestAuthServiceAuthInvalidCredentials(t *testing.T) {
 	assert.Empty(t, token)
 	userRepo.AssertExpectations(t)
 }
-

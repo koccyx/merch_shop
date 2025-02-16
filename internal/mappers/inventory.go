@@ -8,10 +8,9 @@ import (
 func MapInventoryItemsEntityToModel(items []entities.InventoryItem) []models.InventoryItem {
 	invenoryModels := make([]models.InventoryItem, 0, len(items))
 
-
 	for _, item := range items {
 		invenoryModels = append(invenoryModels, models.InventoryItem{
-			Type: item.Name,
+			Type:     item.Name,
 			Quantity: item.Amount,
 		})
 	}

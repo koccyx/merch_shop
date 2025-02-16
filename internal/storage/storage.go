@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
-	
+
 	"github.com/google/uuid"
 
 	"github.com/koccyx/avito_assignment/internal/entities"
@@ -37,9 +37,9 @@ type ItemRepository interface {
 }
 
 type Repository struct {
-	User UserRepository
-	Item ItemRepository
-	UserItem UserItemRepository
+	User        UserRepository
+	Item        ItemRepository
+	UserItem    UserItemRepository
 	Transaction TransactionRepository
 }
 
@@ -50,9 +50,9 @@ func NewRepository(db *sql.DB) *Repository {
 	transaction := postgres.NewTransactionRepository(db)
 
 	return &Repository{
-		User: user,
-		Item: item,
-		UserItem: userItem,
+		User:        user,
+		Item:        item,
+		UserItem:    userItem,
 		Transaction: transaction,
 	}
 }

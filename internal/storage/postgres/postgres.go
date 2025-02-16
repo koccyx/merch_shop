@@ -10,14 +10,14 @@ import (
 )
 
 var (
-	ErrWrongId = errors.New("wrong id")
-	ErrEmptyFields = errors.New("empty fields")
-	ErrNotFound = errors.New("url not found")
-	ErrEntryExists = errors.New("entry exists")
+	ErrWrongId          = errors.New("wrong id")
+	ErrEmptyFields      = errors.New("empty fields")
+	ErrNotFound         = errors.New("url not found")
+	ErrEntryExists      = errors.New("entry exists")
 	ErrNotEnoughBalance = errors.New("not enough balance")
 )
 
-func New(cfg *config.Config) (*sql.DB, error){	
+func New(cfg *config.Config) (*sql.DB, error) {
 	const op = "storage.postgres.New"
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", cfg.Storage.User, cfg.Storage.Password, cfg.Storage.Addres, cfg.Storage.Port, cfg.Storage.Database, cfg.Storage.Schema)

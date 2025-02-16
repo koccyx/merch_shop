@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/koccyx/avito_assignment/internal/server/models"
 	jsonwriter "github.com/koccyx/avito_assignment/internal/lib/json_writer"
 	"github.com/koccyx/avito_assignment/internal/lib/sl"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 	"github.com/koccyx/avito_assignment/internal/service"
 	"github.com/koccyx/avito_assignment/internal/validators"
 )
@@ -20,18 +20,21 @@ type AuthService interface {
 }
 
 func Auth(authService AuthService, logger *slog.Logger) http.HandlerFunc {
-	const op = "http.handlers.Auth" 
+	const op = "http.handlers.Auth"
 	log := logger.With(
 		slog.String("op", op),
 	)
-	
+
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var authReq models.AuthRequest
 
 		err := json.NewDecoder(r.Body).Decode(&authReq)
 		if err != nil {
 			log.Error("wrong request body", sl.Err(err))
-			jsonwriter.WriteJSONError(ErrInvalidRequestBody, w, http.StatusBadRequest)
+			err = jsonwriter.WriteJSONError(ErrInvalidRequestBody, w, http.StatusBadRequest)
+			if err != nil {
+				log.Error("json error", sl.Err(err))
+			}
 			return
 		}
 
@@ -46,10 +49,15 @@ func Auth(authService AuthService, logger *slog.Logger) http.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, service.ErrInvalidPassword) || errors.Is(err, service.ErrInvalidToken) || errors.Is(err, service.ErrInvalidCredentials) {
 				log.Error("validation", sl.Err(err))
-				jsonwriter.WriteJSONError(err, w, http.StatusBadRequest)
+				err := jsonwriter.WriteJSONError(err, w, http.StatusBadRequest)
+
+				if err != nil {
+					log.Error("json error", sl.Err(err))
+				}
+
 				return
 			}
-			
+
 			log.Error("error while getting token", sl.Err(err))
 			jsonwriter.WriteJSONError(ErrInternalServerError, w, http.StatusInternalServerError)
 			return

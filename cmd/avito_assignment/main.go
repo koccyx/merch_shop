@@ -13,7 +13,6 @@ import (
 	"github.com/koccyx/avito_assignment/internal/server"
 )
 
-
 func main() {
 	cfg, err := config.Load()
 
@@ -28,7 +27,7 @@ func main() {
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	
+
 	serv := server.NewServer(log, cfg)
 
 	<-done
@@ -37,10 +36,9 @@ func main() {
 	defer cancel()
 
 	serv.GracefulShutdown(ctx)
-	
+
 	log.Info("server stopped")
 }
-
 
 func setupLogger() *slog.Logger {
 	log := slog.New(

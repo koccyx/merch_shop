@@ -3,9 +3,9 @@ package mappers
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/koccyx/avito_assignment/internal/entities"
 	"github.com/koccyx/avito_assignment/internal/server/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapTransactionEntityToCoinsHistory(t *testing.T) {
@@ -38,7 +38,7 @@ func TestMapTransactionEntityToCoinsHistory(t *testing.T) {
 			},
 		},
 		{
-			name: "single sent transaction",
+			name:     "single sent transaction",
 			received: []entities.CoinTransactionInfo{},
 			sent: []entities.CoinTransactionInfo{
 				{ToUser: "user2", Amount: 50},

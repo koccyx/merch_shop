@@ -15,10 +15,10 @@ import (
 )
 
 type AuthServiceSt struct {
-	log *slog.Logger
-	db *sql.DB
+	log      *slog.Logger
+	db       *sql.DB
 	userRepo UserRepository
-	secret string
+	secret   string
 }
 
 func (s *AuthServiceSt) Auth(ctx context.Context, username, password string) (string, error) {
@@ -64,10 +64,15 @@ func (s *AuthServiceSt) Auth(ctx context.Context, username, password string) (st
 		if err != nil {
 			return "", fmt.Errorf("%s: %w", op, err)
 		}
-	
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+			tx.Commit()
+		}()
+
 		_, err = s.userRepo.Create(ctx, tx, username, string(pswdHash))
 		if err != nil {
-			tx.Rollback()
 			log.Error("failed while creating a user", sl.Err(err))
 			return "", fmt.Errorf("%s: %w", op, err)
 		}
@@ -101,7 +106,7 @@ func (s *AuthServiceSt) Auth(ctx context.Context, username, password string) (st
 	return token, nil
 }
 
-func (s * AuthServiceSt) VerifyToken(ctx context.Context, token string) (string, error) {
+func (s *AuthServiceSt) VerifyToken(ctx context.Context, token string) (string, error) {
 	const op = "service.auth.VerifyToken"
 
 	log := s.log.With(
@@ -138,11 +143,11 @@ func (s * AuthServiceSt) VerifyToken(ctx context.Context, token string) (string,
 	return usr.Id.String(), nil
 }
 
-func NewAuthService(tdRepo UserRepository, logger *slog.Logger, secret string, db *sql.DB) *AuthServiceSt{
+func NewAuthService(tdRepo UserRepository, logger *slog.Logger, secret string, db *sql.DB) *AuthServiceSt {
 	return &AuthServiceSt{
 		userRepo: tdRepo,
-		log: logger,
-		secret: secret,
-		db: db,
+		log:      logger,
+		secret:   secret,
+		db:       db,
 	}
 }

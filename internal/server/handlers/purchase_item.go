@@ -17,11 +17,11 @@ type ItemService interface {
 }
 
 func PurchaseItem(itemService ItemService, logger *slog.Logger) http.HandlerFunc {
-	const op = "http.handlers.PurchaseItem" 
+	const op = "http.handlers.PurchaseItem"
 	log := logger.With(
 		slog.String("op", op),
 	)
-	
+
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		itemName := chi.URLParam(r, "item")
 		if itemName == "" {
@@ -36,7 +36,7 @@ func PurchaseItem(itemService ItemService, logger *slog.Logger) http.HandlerFunc
 			log.Error("no user", sl.Err(ErrInvalidParam))
 			jsonwriter.WriteJSONError(ErrInternalUserId, w, http.StatusInternalServerError)
 			return
-		} 
+		}
 
 		err := itemService.PurchaseItem(r.Context(), userIdStr, itemName)
 		if err != nil {
@@ -51,7 +51,7 @@ func PurchaseItem(itemService ItemService, logger *slog.Logger) http.HandlerFunc
 				jsonwriter.WriteJSONError(ErrInvalidParam, w, http.StatusBadRequest)
 				return
 			}
-			
+
 			log.Error("error while purchasing item", sl.Err(err))
 			jsonwriter.WriteJSONError(ErrInternalServerError, w, http.StatusInternalServerError)
 			return

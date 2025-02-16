@@ -19,7 +19,7 @@ func ValidatePassword(password string) error {
 	if len(password) < 5 {
 		return fmt.Errorf("password must be more then 5")
 	}
-	
+
 	return nil
 }
 
@@ -33,7 +33,7 @@ func ValidateCoinsAmount(amount int) error {
 	if amount < 1 {
 		return fmt.Errorf("coins amount must be more then 0")
 	}
-	
+
 	return nil
 }
 

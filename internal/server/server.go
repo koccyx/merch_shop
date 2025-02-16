@@ -2,19 +2,19 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
-	"database/sql"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 	"github.com/koccyx/avito_assignment/internal/config"
+	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/server/handlers"
 	"github.com/koccyx/avito_assignment/internal/server/middleware/auth"
 	"github.com/koccyx/avito_assignment/internal/server/middleware/logger"
-	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/service"
 	"github.com/koccyx/avito_assignment/internal/storage"
 	"github.com/koccyx/avito_assignment/internal/storage/postgres"
@@ -22,9 +22,9 @@ import (
 
 type Server struct {
 	Server *http.Server
-	db *sql.DB
-	log *slog.Logger
-	cfg *config.Config
+	db     *sql.DB
+	log    *slog.Logger
+	cfg    *config.Config
 }
 
 func (s *Server) SetupServer() {
@@ -32,10 +32,10 @@ func (s *Server) SetupServer() {
 	s.db, err = postgres.New(s.cfg)
 
 	if err != nil {
-		s.log.Error("failed to init storage",sl.Err(err))
+		s.log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)
 	}
-	
+
 	storage := storage.NewRepository(s.db)
 	service := service.New(storage, s.log, s.cfg.Auth.Secret, s.db)
 
@@ -43,7 +43,7 @@ func (s *Server) SetupServer() {
 
 	router.Use(logger.New(s.log))
 	router.Use(middleware.Recoverer)
-	
+
 	router.Group(func(r chi.Router) {
 		r.Post("/api/auth", handlers.Auth(service.Auth, s.log))
 	})
@@ -56,7 +56,7 @@ func (s *Server) SetupServer() {
 	})
 
 	s.Server = &http.Server{
-		Addr: fmt.Sprintf("%s:%s", s.cfg.Server.Addres, s.cfg.Server.Port),
+		Addr:    fmt.Sprintf("%s:%s", s.cfg.Server.Addres, s.cfg.Server.Port),
 		Handler: router,
 	}
 
@@ -83,12 +83,12 @@ func (s *Server) GracefulShutdown(ctx context.Context) {
 	}
 }
 
-func NewServer(log *slog.Logger, cfg *config.Config) *Server{
+func NewServer(log *slog.Logger, cfg *config.Config) *Server {
 	serv := &Server{
 		log: log,
 		cfg: cfg,
 	}
-	
+
 	serv.SetupServer()
 
 	return serv

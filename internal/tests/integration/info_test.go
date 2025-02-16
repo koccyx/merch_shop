@@ -13,40 +13,30 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type InfoTests struct {
-	name string
-	username1 string
-	password1 string
-	username2 string
-	password2 string
-	amount int
-	res int
-}
-
 func TestInfo(t *testing.T) {
 	tests := []SendingCoinsTests{
 		{
-			name: "Success test",
+			name:      "Success test",
 			username1: RandomWord(10),
 			password1: RandomWord(10),
 			username2: RandomWord(10),
 			password2: RandomWord(10),
-			amount: 100,
-			res: http.StatusOK,
+			amount:    100,
+			res:       http.StatusOK,
 		},
 		{
-			name: "Failure not enough balance test",
+			name:      "Failure not enough balance test",
 			username1: RandomWord(10),
 			password1: RandomWord(10),
 			username2: RandomWord(10),
 			password2: RandomWord(10),
-			amount: 1001,
-			res: http.StatusBadRequest,
+			amount:    1001,
+			res:       http.StatusBadRequest,
 		},
 	}
 
 	for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			client := http.Client{}
 
 			reqBody := &models.AuthRequest{
@@ -59,12 +49,11 @@ func TestInfo(t *testing.T) {
 
 			req, err := http.NewRequest("POST", apiURL+"/api/auth", bytes.NewBuffer(r))
 			require.NoError(t, err)
-			
+
 			req.Header.Set("Content-Type", "application/json")
 			res1, err := client.Do(req)
 			require.NoError(t, err)
 			defer res1.Body.Close()
-
 
 			reqBody = &models.AuthRequest{
 				Username: tt.username2,
@@ -76,7 +65,7 @@ func TestInfo(t *testing.T) {
 
 			req, err = http.NewRequest("POST", apiURL+"/api/auth", bytes.NewBuffer(r))
 			require.NoError(t, err)
-			
+
 			req.Header.Set("Content-Type", "application/json")
 			res2, err := client.Do(req)
 			require.NoError(t, err)
@@ -85,7 +74,7 @@ func TestInfo(t *testing.T) {
 			authResponse := models.AuthResponse{}
 			err = json.NewDecoder(res1.Body).Decode(&authResponse)
 			require.NoError(t, err)
-		
+
 			sendReq := models.SendCoinRequest{
 				ToUser: tt.username2,
 				Amount: tt.amount,
@@ -119,11 +108,10 @@ func TestInfo(t *testing.T) {
 			infoResp := models.InfoResponse{}
 			err = json.NewDecoder(infRes.Body).Decode(&infoResp)
 			require.NoError(t, err)
-			
 
 			if tt.res == http.StatusOK {
 				assert.Equal(t, 1000-tt.amount, infoResp.Coins)
 			}
-        })
+		})
 	}
 }

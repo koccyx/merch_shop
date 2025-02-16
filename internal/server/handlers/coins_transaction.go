@@ -6,19 +6,19 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/koccyx/avito_assignment/internal/server/models"
 	jsonwriter "github.com/koccyx/avito_assignment/internal/lib/json_writer"
 	"github.com/koccyx/avito_assignment/internal/lib/sl"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 	"github.com/koccyx/avito_assignment/internal/service"
 	"github.com/koccyx/avito_assignment/internal/validators"
 )
 
 func TransferCoins(userService UserService, logger *slog.Logger) http.HandlerFunc {
-	const op = "http.handlers.TransferCoins" 
+	const op = "http.handlers.TransferCoins"
 	log := logger.With(
 		slog.String("op", op),
 	)
-	
+
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var coinsTransactionReq models.SendCoinRequest
 
@@ -49,7 +49,7 @@ func TransferCoins(userService UserService, logger *slog.Logger) http.HandlerFun
 			log.Error("empty param", sl.Err(ErrInvalidParam))
 			jsonwriter.WriteJSONError(ErrInternalUserId, w, http.StatusInternalServerError)
 			return
-		} 
+		}
 
 		err = userService.TransferCoins(r.Context(), userIdStr, coinsTransactionReq.ToUser, coinsTransactionReq.Amount)
 		if err != nil {
@@ -76,7 +76,7 @@ func TransferCoins(userService UserService, logger *slog.Logger) http.HandlerFun
 				jsonwriter.WriteJSONError(ErrSameUserTransfer, w, http.StatusBadRequest)
 				return
 			}
-			
+
 			log.Error("error while transfering coins", sl.Err(err))
 			jsonwriter.WriteJSONError(ErrInternalServerError, w, http.StatusInternalServerError)
 			return

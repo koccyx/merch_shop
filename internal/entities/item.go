@@ -5,12 +5,12 @@ import (
 )
 
 type Item struct {
-	Id uuid.UUID `db:"id"`
-	Name string `db:"name"`
-	Price int `db:"price"`
+	Id    uuid.UUID `db:"id"`
+	Name  string    `db:"name"`
+	Price int       `db:"price"`
 }
 
 type InventoryItem struct {
-	Name string 
-    Amount int
+	Name   string
+	Amount int
 }

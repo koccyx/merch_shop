@@ -5,17 +5,16 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	"math/rand"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"testing"
 	"time"
-	"math/rand"
 
 	"github.com/koccyx/avito_assignment/internal/config"
 	"github.com/koccyx/avito_assignment/internal/server"
-
 )
 
 var apiURL string
@@ -35,41 +34,41 @@ func TestMain(m *testing.M) {
 
 	log.Info("main started")
 	log.Debug("debug messages enabled")
-	
+
 	serv := server.NewServer(log, cfg)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	
+
 	serv.SetupServer()
-	
+
 	exitCode := m.Run()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 
 	serv.GracefulShutdown(ctx)
 
-    log.Info("Tearing down...")
+	log.Info("Tearing down...")
 
-    os.Exit(exitCode)
+	cancel()
+	os.Exit(exitCode)
 }
 
 func setupLogger() *slog.Logger {
 	log := slog.New(
 		slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelDebug}),
 	)
-	
+
 	return log
 }
 
 func RandomWord(length int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    rand.Seed(time.Now().UnixNano())
-    b := make([]byte, length)
-    for i := range b {
-        b[i] = letters[rand.Intn(len(letters))]
-    }
-    return string(b)
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }

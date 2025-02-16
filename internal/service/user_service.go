@@ -9,19 +9,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/koccyx/avito_assignment/internal/entities"
-	"github.com/koccyx/avito_assignment/internal/server/models"
 	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/mappers"
+	"github.com/koccyx/avito_assignment/internal/server/models"
 	"github.com/koccyx/avito_assignment/internal/storage/postgres"
 )
 
 type UserServiceSt struct {
-	log *slog.Logger
-	db *sql.DB
-	userRepo UserRepository
-	itemRepo ItemRepository
+	log             *slog.Logger
+	db              *sql.DB
+	userRepo        UserRepository
+	itemRepo        ItemRepository
 	transactionRepo TransactionRepository
-	userItemRepo UserItemRepository
+	userItemRepo    UserItemRepository
 }
 
 func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameTo string, amount int) error {
@@ -31,7 +31,7 @@ func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameT
 		slog.String("op", op),
 		slog.String("From", userFromId),
 	)
-	
+
 	log.Info("transfering coins")
 
 	prsdUsrFromId, err := uuid.Parse(userFromId)
@@ -66,20 +66,20 @@ func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameT
 		log.Error("to user not found")
 		return fmt.Errorf("%s: %w", op, ErrNoEntry)
 	}
-	
+
 	if fromUsr.Id == toUsr.Id {
 		log.Error("cant transfer coins to the same user", sl.Err(ErrSameUserTransfer))
 		return fmt.Errorf("%s: %w", op, ErrSameUserTransfer)
 	}
 
 	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{
-        Isolation: sql.LevelReadCommitted,
-    })
+		Isolation: sql.LevelReadCommitted,
+	})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	defer func ()  {
+	defer func() {
 		if err != nil {
 			tx.Rollback()
 		}
@@ -120,7 +120,7 @@ func (s *UserServiceSt) Info(ctx context.Context, userId string) (*models.InfoRe
 		slog.String("op", op),
 		slog.String("From", userId),
 	)
-	
+
 	log.Info("transfering coins")
 
 	prsdUsrId, err := uuid.Parse(userId)
@@ -161,23 +161,23 @@ func (s *UserServiceSt) Info(ctx context.Context, userId string) (*models.InfoRe
 	}
 
 	coinsHistory := mappers.MapTransactionEntityToCoinsHistory(recivedTr, sentTr)
-	
+
 	log.Info(fmt.Sprintf("successfuly got info about %s", usr.Username))
 
 	return &models.InfoResponse{
 		CoinHistory: coinsHistory,
-		Coins: usr.Balance,
-		Inventory: inventory,
+		Coins:       usr.Balance,
+		Inventory:   inventory,
 	}, nil
 }
 
-func NewUserService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, transactionRepo TransactionRepository, logger *slog.Logger, db *sql.DB) *UserServiceSt{
+func NewUserService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, transactionRepo TransactionRepository, logger *slog.Logger, db *sql.DB) *UserServiceSt {
 	return &UserServiceSt{
-		userRepo: tdRepo,
-		itemRepo: itemRepo,
-		userItemRepo: userItemRepo,
+		userRepo:        tdRepo,
+		itemRepo:        itemRepo,
+		userItemRepo:    userItemRepo,
 		transactionRepo: transactionRepo,
-		log: logger,
-		db: db,
+		log:             logger,
+		db:              db,
 	}
 }

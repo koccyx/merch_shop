@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	ErrNoEntry = errors.New("no entry found")
+	ErrNoEntry            = errors.New("no entry found")
 	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidPassword = errors.New("invalid password")
-	ErrInvalidUsername = errors.New("invalid password")
-	ErrSameUserTransfer = errors.New("cant transfer coins to same user")
-	ErrInvalidToken = errors.New("invalid token")
-	ErrNotEnoughBalance = errors.New("not enough balance")
+	ErrInvalidPassword    = errors.New("invalid password")
+	ErrInvalidUsername    = errors.New("invalid password")
+	ErrSameUserTransfer   = errors.New("cant transfer coins to same user")
+	ErrInvalidToken       = errors.New("invalid token")
+	ErrNotEnoughBalance   = errors.New("not enough balance")
 )
 
 type UserRepository interface {

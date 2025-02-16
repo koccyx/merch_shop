@@ -107,22 +107,22 @@ func TestValdateCoinsTransactionRequest(t *testing.T) {
 		{
 			name: "Valid transaction request",
 			request: models.SendCoinRequest{
-				ToUser:   "user2",
-				Amount:   100,
+				ToUser: "user2",
+				Amount: 100,
 			},
 			expected: nil,
 		},
 		{
 			name: "invalid transaction request (missing FromUser)",
 			request: models.SendCoinRequest{
-				Amount:   100,
+				Amount: 100,
 			},
 			expected: assert.AnError,
 		},
 		{
 			name: "invalid transaction request (Amount < 1)",
 			request: models.SendCoinRequest{
-				ToUser:   "user2",
+				ToUser: "user2",
 			},
 			expected: assert.AnError,
 		},

@@ -8,16 +8,16 @@ import (
 )
 
 type TokenTest struct {
-	name string
+	name   string
 	userId string
 }
 
 func TestCreateAndParseToken(t *testing.T) {
 	secretKey := "avito_assignment"
-	
+
 	tests := []TokenTest{
 		{
-			name: "success test",
+			name:   "success test",
 			userId: "12312assdas",
 		},
 	}
@@ -66,7 +66,3 @@ func TestParseToken(t *testing.T) {
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "token contains an invalid number of segments")
 }
-
-
-
-

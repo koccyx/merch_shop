@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	jsonwriter "github.com/koccyx/avito_assignment/internal/lib/json_writer"
+	"github.com/koccyx/avito_assignment/internal/lib/sl"
 	"github.com/koccyx/avito_assignment/internal/service"
 )
 
@@ -16,11 +17,10 @@ type AuthService interface {
 	VerifyToken(ctx context.Context, token string) (string, error)
 }
 
-
-func AuthMiddleware(auth AuthService, secret string, log *slog.Logger) func (next http.Handler) http.Handler {
-	return func (next http.Handler) http.Handler {
+func AuthMiddleware(auth AuthService, secret string, log *slog.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
 		log := log.With(
-			slog.String("component","middleware/auth"),
+			slog.String("component", "middleware/auth"),
 		)
 
 		log.Info("auth middleware enabled")
@@ -29,7 +29,13 @@ func AuthMiddleware(auth AuthService, secret string, log *slog.Logger) func (nex
 			authHdr := r.Header.Get("Authorization")
 			if authHdr == "" {
 				log.Error("empty authorization header field")
-				jsonwriter.WriteJSONError(fmt.Errorf("empty authorization header field"), w, http.StatusUnauthorized)
+				err := jsonwriter.WriteJSONError(fmt.Errorf("empty authorization header field"), w, http.StatusUnauthorized)
+
+				if err != nil {
+					log.Error("json error", sl.Err(err))
+					return
+				}
+
 				return
 			}
 
@@ -37,7 +43,13 @@ func AuthMiddleware(auth AuthService, secret string, log *slog.Logger) func (nex
 
 			if len(splitedAuthHdr) != 2 || splitedAuthHdr[0] != "Bearer" {
 				log.Error("wrong authorization header")
-				jsonwriter.WriteJSONError(fmt.Errorf("wrong authorization header"), w, http.StatusUnauthorized)
+				err := jsonwriter.WriteJSONError(fmt.Errorf("wrong authorization header"), w, http.StatusUnauthorized)
+
+				if err != nil {
+					log.Error("json error", sl.Err(err))
+					return
+				}
+
 				return
 			}
 
@@ -45,7 +57,12 @@ func AuthMiddleware(auth AuthService, secret string, log *slog.Logger) func (nex
 			if err != nil {
 				if errors.Is(err, service.ErrNoEntry) {
 					log.Error("no user with this id")
-					jsonwriter.WriteJSONError(fmt.Errorf("no user with this id"), w, http.StatusUnauthorized)
+					err := jsonwriter.WriteJSONError(fmt.Errorf("no user with this id"), w, http.StatusUnauthorized)
+
+					if err != nil {
+						log.Error("json error")
+						return
+					}
 					return
 				}
 

@@ -3,9 +3,9 @@ package mappers
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/koccyx/avito_assignment/internal/entities"
 	"github.com/koccyx/avito_assignment/internal/server/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapInventoryItemsEntityToModel(t *testing.T) {
@@ -15,8 +15,8 @@ func TestMapInventoryItemsEntityToModel(t *testing.T) {
 		expectedOutput []models.InventoryItem
 	}{
 		{
-			name: "empty input",
-			input: []entities.InventoryItem{},
+			name:           "empty input",
+			input:          []entities.InventoryItem{},
 			expectedOutput: []models.InventoryItem{},
 		},
 		{
