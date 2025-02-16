@@ -18,7 +18,7 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-username/avito-shop.git
+git clone https://github.com/koccyx/avito_assignment.git
 cd avito_assignment
 
 # Запуск через Docker Compose
@@ -29,7 +29,7 @@ docker-compose up --build
 
 1. Клонируйте репозиторий
 ```bash
-git clone https://github.com/your-username/avito-shop.git
+git clone https://github.com/koccyx/avito_assignment.git
 cd avito-shop
 ```
 
