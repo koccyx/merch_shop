@@ -13,10 +13,6 @@ import (
 	"github.com/koccyx/avito_assignment/internal/server"
 )
 
-const(
-	envLocal = "local"
-    envDev = "dev"
-)
 
 func main() {
 	cfg, err := config.Load()
@@ -25,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log := setupLogger(cfg.Env)
+	log := setupLogger()
 
 	log.Info("main started")
 	log.Debug("debug messages enabled")
@@ -48,19 +44,10 @@ func main() {
 }
 
 
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	}
+func setupLogger() *slog.Logger {
+	log := slog.New(
+		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+	)
 
 	return log
 }

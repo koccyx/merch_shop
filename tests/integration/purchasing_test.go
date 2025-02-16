@@ -3,36 +3,50 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
+	_ "github.com/golang-jwt/jwt/v5"
 	"github.com/koccyx/avito_assignment/internal/server/models"
-	"github.com/koccyx/avito_assignment/internal/lib/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type AuthTests struct {
+type PurchasingTests struct {
 	name string
-	username     string
-	password     string
+	username string
+	password string
+	item string
 	res int
+	authRes int
 }
 
-
-func TestAuth(t *testing.T) {
-	tests := []AuthTests{
+func TestPurchase(t *testing.T) {
+	tests := []PurchasingTests{
 		{
 			name: "Success test",
-			username:     RandomWord(7),
-			password:     RandomWord(7),
+			username: RandomWord(7),
+			password: RandomWord(7),
+			item: "socks",
 			res: http.StatusOK,
+			authRes: http.StatusOK,
 		},
 		{
-			name: "Failure test",
+			name: "Failure item name test",
 			username:     RandomWord(7),
-			password:     RandomWord(4),
+			password:     RandomWord(7),
+			item: "pencil",
 			res: http.StatusBadRequest,
+			authRes: http.StatusOK,
+		},
+		{
+			name: "Failure auth test",
+			username:     RandomWord(5),
+			password:     RandomWord(3),
+			item: "pen",
+			res: http.StatusUnauthorized,
+			authRes: http.StatusBadRequest,
 		},
 	}
 
@@ -55,15 +69,26 @@ func TestAuth(t *testing.T) {
 			res, err := client.Do(req)
 			require.NoError(t, err)
 			defer res.Body.Close()
-			assert.Equal(t, tt.res, res.StatusCode)
+			assert.Equal(t, tt.authRes, res.StatusCode)
 
-			if (tt.res == http.StatusOK) {
+
+			if (tt.authRes == http.StatusOK) {
 				var authResponse = models.AuthResponse{}
 				err = json.NewDecoder(res.Body).Decode(&authResponse)
 				require.NoError(t, err)
-				
-				_, err = jwt.ParseToken(authResponse.Token, cfg.Auth.Secret)
+
+				purReq, err := http.NewRequest("GET", apiURL+"/api/buy/"+tt.item, nil)
 				require.NoError(t, err)
+				
+				purReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authResponse.Token))
+				purReq.Header.Set("Content-Type", "application/json")
+
+				purRes, err := client.Do(purReq)
+				
+				require.NoError(t, err)
+				defer purRes.Body.Close()
+
+				assert.Equal(t, tt.res, purRes.StatusCode)
 			}
         })
 	}

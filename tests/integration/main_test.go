@@ -11,9 +11,11 @@ import (
 	"syscall"
 	"testing"
 	"time"
+	"math/rand"
 
 	"github.com/koccyx/avito_assignment/internal/config"
 	"github.com/koccyx/avito_assignment/internal/server"
+
 )
 
 var apiURL string
@@ -59,4 +61,15 @@ func setupLogger() *slog.Logger {
 	)
 	
 	return log
+}
+
+func RandomWord(length int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    rand.Seed(time.Now().UnixNano())
+    b := make([]byte, length)
+    for i := range b {
+        b[i] = letters[rand.Intn(len(letters))]
+    }
+    return string(b)
 }

@@ -8,7 +8,7 @@ import (
 	"os"
 	"database/sql"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/middleware"
 	"github.com/koccyx/avito_assignment/internal/config"
 	"github.com/koccyx/avito_assignment/internal/server/handlers"

@@ -25,7 +25,7 @@ func PurchaseItem(itemService ItemService, logger *slog.Logger) http.HandlerFunc
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		itemName := chi.URLParam(r, "item")
 		if itemName == "" {
-			log.Error("empty param", sl.Err(ErrInvalidParam))
+			log.Error("empty parameter", sl.Err(ErrInvalidParam))
 			jsonwriter.WriteJSONError(ErrInvalidParam, w, http.StatusBadRequest)
 			return
 		}
@@ -33,7 +33,7 @@ func PurchaseItem(itemService ItemService, logger *slog.Logger) http.HandlerFunc
 		usrId := r.Context().Value("userId")
 		userIdStr, ok := usrId.(string)
 		if !ok {
-			log.Error("empty param", sl.Err(ErrInvalidParam))
+			log.Error("no user", sl.Err(ErrInvalidParam))
 			jsonwriter.WriteJSONError(ErrInternalUserId, w, http.StatusInternalServerError)
 			return
 		} 
