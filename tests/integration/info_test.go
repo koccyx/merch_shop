@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type SendingCoinsTests struct {
+type InfoTests struct {
 	name string
 	username1 string
 	password1 string
@@ -23,7 +23,7 @@ type SendingCoinsTests struct {
 	res int
 }
 
-func TestSending(t *testing.T) {
+func TestInfo(t *testing.T) {
 	tests := []SendingCoinsTests{
 		{
 			name: "Success test",
@@ -43,14 +43,6 @@ func TestSending(t *testing.T) {
 			amount: 1001,
 			res: http.StatusBadRequest,
 		},
-		// {
-		// 	name: "Failure auth test",
-		// 	username:     RandomWord(5),
-		// 	password:     RandomWord(3),
-		// 	item: "pen",
-		// 	res: http.StatusUnauthorized,
-		// 	authRes: http.StatusBadRequest,
-		// },
 	}
 
 	for _, tt := range tests {
@@ -113,6 +105,25 @@ func TestSending(t *testing.T) {
 			defer purRes.Body.Close()
 
 			assert.Equal(t, tt.res, purRes.StatusCode)
+
+			infReq, err := http.NewRequest("GET", apiURL+"/api/info", nil)
+			require.NoError(t, err)
+
+			infReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authResponse.Token))
+			infReq.Header.Set("Content-Type", "application/json")
+
+			infRes, err := client.Do(infReq)
+			require.NoError(t, err)
+			defer infRes.Body.Close()
+
+			infoResp := models.InfoResponse{}
+			err = json.NewDecoder(infRes.Body).Decode(&infoResp)
+			require.NoError(t, err)
+			
+
+			if tt.res == http.StatusOK {
+				assert.Equal(t, 1000-tt.amount, infoResp.Coins)
+			}
         })
 	}
 }

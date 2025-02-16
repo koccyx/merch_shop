@@ -29,9 +29,15 @@ func TestAuth(t *testing.T) {
 			res: http.StatusOK,
 		},
 		{
-			name: "Failure test",
+			name: "Failure short password test",
 			username:     RandomWord(7),
 			password:     RandomWord(4),
+			res: http.StatusBadRequest,
+		},
+		{
+			name: "Failure short username test",
+			username:     RandomWord(3),
+			password:     RandomWord(7),
 			res: http.StatusBadRequest,
 		},
 	}
@@ -50,11 +56,12 @@ func TestAuth(t *testing.T) {
 
 			req, err := http.NewRequest("POST", apiURL+"/api/auth", bytes.NewBuffer(r))
 			require.NoError(t, err)
-			
 			req.Header.Set("Content-Type", "application/json")
+
 			res, err := client.Do(req)
 			require.NoError(t, err)
 			defer res.Body.Close()
+
 			assert.Equal(t, tt.res, res.StatusCode)
 
 			if (tt.res == http.StatusOK) {

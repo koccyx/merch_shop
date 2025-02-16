@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 
 	serv.GracefulShutdown(ctx)
 
-    println("Tearing down...")
+    log.Info("Tearing down...")
 
     os.Exit(exitCode)
 }

@@ -25,14 +25,12 @@ func main() {
 
 	log.Info("main started")
 	log.Debug("debug messages enabled")
-	
-	serv := server.NewServer(log, cfg)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	
-	serv.SetupServer()
-	
+	serv := server.NewServer(log, cfg)
+
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

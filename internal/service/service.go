@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 
@@ -22,15 +23,15 @@ var (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, username, password string) (*entities.User, error)
+	Create(ctx context.Context, tx *sql.Tx, username, password string) (*uuid.UUID, error)
 	GetOne(ctx context.Context, usrId uuid.UUID) (*entities.User, error)
 	GetByName(ctx context.Context, username string) (*entities.User, error)
-	PutCoins(ctx context.Context, userId uuid.UUID, amount int) (int64, error)
+	PutCoins(ctx context.Context, tx *sql.Tx, userId uuid.UUID, amount int) (int, error)
 	GetUserItemsInfo(ctx context.Context, userId uuid.UUID) ([]entities.InventoryItem, error)
 }
 
 type UserItemRepository interface {
-	Create(ctx context.Context, userId uuid.UUID, itemId uuid.UUID) (*entities.UserItem, error)
+	Create(ctx context.Context, tx *sql.Tx, userId uuid.UUID, itemId uuid.UUID) (*uuid.UUID, error)
 	GetAllInfoByUserId(ctx context.Context, usrId uuid.UUID) ([]entities.UserItem, error)
 	GetOne(ctx context.Context, userItemId uuid.UUID) (*entities.UserItem, error)
 }
@@ -40,7 +41,7 @@ type ItemRepository interface {
 }
 
 type TransactionRepository interface {
-	Create(ctx context.Context, fromUserId uuid.UUID, toUserId uuid.UUID, amount int) (*entities.Transaction, error)
+	Create(ctx context.Context, tx *sql.Tx, fromUserId uuid.UUID, toUserId uuid.UUID, amount int) (*uuid.UUID, error)
 	GetAllWithDirection(ctx context.Context, usrId uuid.UUID, direction entities.Direction) ([]entities.CoinTransactionInfo, error)
 	GetOne(ctx context.Context, transactionId uuid.UUID) (*entities.Transaction, error)
 }
@@ -65,10 +66,10 @@ type Service struct {
 	User UserService
 }
 
-func New(repo *storage.Repository, log *slog.Logger, secret string) *Service {
+func New(repo *storage.Repository, log *slog.Logger, secret string, db *sql.DB) *Service {
 	return &Service{
-		Auth: NewAuthService(repo.User, log, secret),
-		Item: NewItemService(repo.User, repo.Item, repo.UserItem, log),
-		User: NewUserService(repo.User, repo.Item, repo.UserItem, repo.Transaction, log),
+		Auth: NewAuthService(repo.User, log, secret, db),
+		Item: NewItemService(repo.User, repo.Item, repo.UserItem, log, db),
+		User: NewUserService(repo.User, repo.Item, repo.UserItem, repo.Transaction, log, db),
 	}
 }

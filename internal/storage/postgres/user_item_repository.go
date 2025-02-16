@@ -14,7 +14,7 @@ type UserItemsRepository struct {
 	db *sql.DB
 }
 
-func (r *UserItemsRepository) Create(ctx context.Context, userId uuid.UUID, itemId uuid.UUID) (*entities.UserItem, error) {	
+func (r *UserItemsRepository) Create(ctx context.Context, tx *sql.Tx, userId uuid.UUID, itemId uuid.UUID) (*uuid.UUID, error) {	
 	const op = "repo.postgres.userItem.Create" 
 
 	if itemId == uuid.Nil {
@@ -37,17 +37,12 @@ func (r *UserItemsRepository) Create(ctx context.Context, userId uuid.UUID, item
         return nil, fmt.Errorf("%s: %w", op, err)
     }
 	
-	_, err = r.db.ExecContext(ctx, sql, args...)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	userItem, err := r.GetOne(ctx, id)
+	_, err = tx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	
-    return userItem, nil
+    return &id, nil
 }
 
 

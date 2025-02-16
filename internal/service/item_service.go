@@ -17,10 +17,11 @@ type ItemServiceSt struct {
 	userRepo UserRepository
 	itemRepo ItemRepository
 	userItemRepo UserItemRepository
+	db *sql.DB
 }
 
 func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName string) error {
-	const op = "service.item.GetItem"
+	const op = "service.item.PurchaseItem"
 
 	log := s.log.With(
 		slog.String("op", op),
@@ -61,7 +62,21 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 		return fmt.Errorf("%s: %w", op, ErrNotEnoughBalance)
 	}
 
-	_, err = s.userRepo.PutCoins(ctx, usr.Id, -item.Price)
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{
+        Isolation: sql.LevelReadCommitted,
+    })
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer func ()  {
+		if err != nil {
+			tx.Rollback()
+		}
+		tx.Commit()
+	}()
+
+	_, err = s.userRepo.PutCoins(ctx, tx, usr.Id, -item.Price)
 	if err != nil {
 		if errors.Is(err, postgres.ErrNotEnoughBalance) {
 			return fmt.Errorf("%s: %w", op, ErrNotEnoughBalance)
@@ -69,7 +84,7 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = s.userItemRepo.Create(ctx, usr.Id, item.Id)
+	_, err = s.userItemRepo.Create(ctx, tx, usr.Id, item.Id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -79,11 +94,12 @@ func (s *ItemServiceSt) PurchaseItem(ctx context.Context, userId, itemName strin
 	return nil
 }
 
-func NewItemService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, logger *slog.Logger) *ItemServiceSt{
+func NewItemService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, logger *slog.Logger, db *sql.DB) *ItemServiceSt{
 	return &ItemServiceSt{
 		userRepo: tdRepo,
 		itemRepo: itemRepo,
 		userItemRepo: userItemRepo,
 		log: logger,
+		db: db,
 	}
 }

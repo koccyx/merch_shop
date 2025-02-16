@@ -14,30 +14,27 @@ type UserRepository struct {
 	db *sql.DB
 }
 
-func (r *UserRepository) Create(ctx context.Context, username, password string) (*entities.User, error) {	
+func (r *UserRepository) Create(ctx context.Context, tx *sql.Tx, username, password string) (*uuid.UUID, error) {	
 	const op = "repo.postgres.user.Create"
 	
 	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 	
+	id := uuid.New()
+
 	sql, args, err := builder.Insert("users").
-	Columns("username", "password").
-	Values(username, password).
+	Columns("id", "username", "password").
+	Values(id, username, password).
 	ToSql();
 	if err != nil {
 		return nil, fmt.Errorf("%s: building query error: %w", op, err)
 	}
 
-	_, err = r.db.ExecContext(ctx, sql, args...)
+	_, err = tx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := r.GetByName(ctx, username)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-	
-	return res, nil 
+	return &id, nil 
 }
 
 func (r *UserRepository) GetOne(ctx context.Context, usrId uuid.UUID) (*entities.User, error) {
@@ -127,7 +124,7 @@ func (r *UserRepository) GetByName(ctx context.Context, username string) (*entit
     return &user, nil
 }
 
-func (r *UserRepository) PutCoins(ctx context.Context, userId uuid.UUID, amount int) (int64, error) {
+func (r *UserRepository) PutCoins(ctx context.Context, tx *sql.Tx, userId uuid.UUID, amount int) (int, error) {
 	const op = "repo.postgres.user.PutCoins" 
 	
     usr, err := r.GetOne(ctx, userId)
@@ -150,7 +147,7 @@ func (r *UserRepository) PutCoins(ctx context.Context, userId uuid.UUID, amount 
         return 0, fmt.Errorf("%s: %w", op, err)
     }
 
-	result, err := r.db.Exec(query, args...)
+	result, err := tx.Exec(query, args...)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -160,7 +157,7 @@ func (r *UserRepository) PutCoins(ctx context.Context, userId uuid.UUID, amount 
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-    return rowsAffected, nil
+    return int(rowsAffected), nil
 }
 
 func NewUserRepository(db *sql.DB) *UserRepository {

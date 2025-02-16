@@ -27,7 +27,7 @@ type Server struct {
 	cfg *config.Config
 }
 
-func (s *Server)SetupServer() {
+func (s *Server) SetupServer() {
 	var err error
 	s.db, err = postgres.New(s.cfg)
 
@@ -37,7 +37,7 @@ func (s *Server)SetupServer() {
 	}
 	
 	storage := storage.NewRepository(s.db)
-	service := service.New(storage, s.log, s.cfg.Auth.Secret)
+	service := service.New(storage, s.log, s.cfg.Auth.Secret, s.db)
 
 	router := chi.NewRouter()
 
@@ -84,8 +84,12 @@ func (s *Server) GracefulShutdown(ctx context.Context) {
 }
 
 func NewServer(log *slog.Logger, cfg *config.Config) *Server{
-	return &Server{
+	serv := &Server{
 		log: log,
 		cfg: cfg,
 	}
+	
+	serv.SetupServer()
+
+	return serv
 }

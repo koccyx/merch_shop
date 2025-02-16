@@ -17,6 +17,7 @@ import (
 
 type UserServiceSt struct {
 	log *slog.Logger
+	db *sql.DB
 	userRepo UserRepository
 	itemRepo ItemRepository
 	transactionRepo TransactionRepository
@@ -71,7 +72,21 @@ func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameT
 		return fmt.Errorf("%s: %w", op, ErrSameUserTransfer)
 	}
 
-	_, err = s.userRepo.PutCoins(ctx, fromUsr.Id, -amount)
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{
+        Isolation: sql.LevelReadCommitted,
+    })
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer func ()  {
+		if err != nil {
+			tx.Rollback()
+		}
+		tx.Commit()
+	}()
+
+	_, err = s.userRepo.PutCoins(ctx, tx, fromUsr.Id, -amount)
 	if err != nil {
 		if errors.Is(err, postgres.ErrNotEnoughBalance) {
 			return fmt.Errorf("%s: %w", op, ErrNotEnoughBalance)
@@ -79,7 +94,7 @@ func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameT
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = s.userRepo.PutCoins(ctx, toUsr.Id, amount)
+	_, err = s.userRepo.PutCoins(ctx, tx, toUsr.Id, amount)
 	if err != nil {
 		if errors.Is(err, postgres.ErrNotEnoughBalance) {
 			return fmt.Errorf("%s: %w", op, ErrNotEnoughBalance)
@@ -87,7 +102,7 @@ func (s *UserServiceSt) TransferCoins(ctx context.Context, userFromId, usernameT
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = s.transactionRepo.Create(ctx, fromUsr.Id, toUsr.Id, amount)
+	_, err = s.transactionRepo.Create(ctx, tx, fromUsr.Id, toUsr.Id, amount)
 	if err != nil {
 		log.Error("error during transaction", sl.Err(err))
 		return fmt.Errorf("%s: %w", op, fmt.Errorf("error during transaction creation"))
@@ -156,12 +171,13 @@ func (s *UserServiceSt) Info(ctx context.Context, userId string) (*models.InfoRe
 	}, nil
 }
 
-func NewUserService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, transactionRepo TransactionRepository, logger *slog.Logger) *UserServiceSt{
+func NewUserService(tdRepo UserRepository, itemRepo ItemRepository, userItemRepo UserItemRepository, transactionRepo TransactionRepository, logger *slog.Logger, db *sql.DB) *UserServiceSt{
 	return &UserServiceSt{
 		userRepo: tdRepo,
 		itemRepo: itemRepo,
 		userItemRepo: userItemRepo,
 		transactionRepo: transactionRepo,
 		log: logger,
+		db: db,
 	}
 }

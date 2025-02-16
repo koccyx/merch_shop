@@ -14,7 +14,7 @@ type TransactionRepository struct {
 	db *sql.DB
 }
 
-func (r *TransactionRepository) Create(ctx context.Context, fromUserId uuid.UUID, toUserId uuid.UUID, amount int) (*entities.Transaction, error) {	
+func (r *TransactionRepository) Create(ctx context.Context, tx *sql.Tx, fromUserId uuid.UUID, toUserId uuid.UUID, amount int) (*uuid.UUID, error) {	
 	const op = "repo.postgres.transaction.Create" 
 
 	if fromUserId == uuid.Nil {
@@ -37,17 +37,12 @@ func (r *TransactionRepository) Create(ctx context.Context, fromUserId uuid.UUID
         return nil, fmt.Errorf("%s: %w", op, err)
     }
 	
-	_, err = r.db.ExecContext(ctx, sql, args...)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	transaction, err := r.GetOne(ctx, id)
+	_, err = tx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	
-    return transaction, nil
+    return &id, nil
 }
 
 
